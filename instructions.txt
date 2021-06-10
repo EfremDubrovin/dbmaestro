@@ -1,0 +1,7 @@
+ mongo indexing demo
+# prerequisites: docker 
+
+# clone test database project
+
+# import database within container
+mongoimport --authenticationDatabase admin --username=root --password=root --db=testdb --collection=listings --type=csv --headerline --file=/tmp/listings.csv
