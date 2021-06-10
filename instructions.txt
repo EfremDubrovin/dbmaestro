@@ -5,3 +5,38 @@
 
 # import database within container
 mongoimport --authenticationDatabase admin --username=root --password=root --db=testdb --collection=listings --type=csv --headerline --file=/tmp/listings.csv
+
+# range queries
+db.listings.find({number_of_reviews: {$gt: 100, $lt: 200}})
+
+# create an index for number_of_reviews
+db.listings.createIndex({number_of_reviews: 1}, {name: "reviews_index"})
+
+# range plus equality
+db.listings.find({number_of_reviews: {$gt: 100, $lt: 200}, "room_type" : "Private room"},{review_scores_rating: 1}).pretty()
+
+# drop the index and create a new one
+db.listings.dropIndex("reviews_index")
+db.listings.createIndex({room_type: 1, number_of_reviews: 1}, {name: "reviews_index"})
+
+# range plus equality plus sort
+db.listings.find({number_of_reviews: {$gt: 100, $lt: 200}, "room_type" : "Private room"}).sort({host_since: -1}).pretty()
+
+# drop the index and create a new one
+db.listings.dropIndex("reviews_index")
+db.listings.createIndex({room_type: 1, host_since: 1, number_of_reviews: 1}, {name: "reviews_index"})
+
+# get listings with amenities - Bath, with number_of_reviews over 300 and with review_score_rating over 99 also has been host before 2019
+db.listings.find({amenities:{$regex: /^.*Bath.*/i}, {name: 1}}).pretty()
+
+# text index on amenities
+db.listings.createIndex({amenities: "text"},{weights: {content: 10},name: "TextIndex"})
+
+# Using text search
+db.listings.find( { $text: { $search: "Bath" } }, {score: {$meta: "textScore"}} )
+
+
+### EXTRA
+# view plan caches
+db.listings.getPlanCache().queryPlanShapes()
+
